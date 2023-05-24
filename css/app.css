@@ -1,0 +1,4 @@
+.word {
+  position: absolute;
+  animation: drop 10s;
+}
