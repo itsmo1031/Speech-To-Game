@@ -24,6 +24,7 @@ class Word {
 }
 
 const gameScreen = document.getElementById('game');
+const timeouts = [];
 let dropping;
 let dropWordTimeout;
 let dropDelay;
@@ -131,9 +132,19 @@ const dummy = [
   'elit',
 ];
 
+const addTimeout = (callback, delay) => {
+  const timeoutId = setTimeout(() => {
+    callback();
+    // 타임아웃이 실행된 후 배열에서 제거
+    timeouts.splice(timeouts.indexOf(timeoutId), 1);
+  }, delay);
+  // 타임아웃 식별자를 배열에 저장
+  timeouts.push(timeoutId);
+};
+
 const startGame = () => {
   const delay = Math.round(Math.random() * 5 * 1000);
-  dropWordTimeout = setTimeout(drop, delay);
+  dropWordTimeout = addTimeout(drop, delay);
   dropDelay += delay;
 };
 
@@ -157,6 +168,9 @@ const drop = () => {
   dropWord.style.whiteSpace = 'nowrap';
   dropWord.style.animationTimingFunction = 'linear';
   dropWord.innerText = word.value;
+  // 단어 애니메이션 종료 시 호출되는 핸들러 추가
+  dropWord.addEventListener('animationend', handleAnimationEnd);
+
   gameScreen.appendChild(dropWord);
 
   const wordWidth = dropWord.offsetWidth; // 텍스트의 실제 너비 가져오기
@@ -183,6 +197,26 @@ const handleInput = (event) => {
     }
 
     event.target.value = ''; // 입력 필드 비우기
+  }
+};
+
+// 모든 타임아웃 클리어
+const clearAllTimeouts = () => {
+  timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+  timeouts.length = 0;
+};
+
+const handleAnimationEnd = () => {
+  const wordElements = Array.from(document.getElementsByClassName('word'));
+  wordElements.forEach((element) => {
+    element.parentNode.removeChild(element);
+  });
+
+  if (document.getElementsByClassName('word').length === 0) {
+    clearAllTimeouts();
+    clearInterval(dropping);
+
+    alert('Game Over');
   }
 };
 
