@@ -3,7 +3,7 @@
 const keyframes = `
 @keyframes drop {
   100%{
-    transform: translateY(100vh) 
+    transform: translateY(${document.getElementById('game').offsetHeight}px) 
   }
 }
 `;
@@ -169,9 +169,29 @@ const drop = () => {
   //console.log(word.posX);
 };
 
+const handleInput = (event) => {
+  if (event.key === ' ' || event.key === 'Enter') {
+    const inputValue = event.target.value;
+
+    const wordElements = document.getElementsByClassName('word');
+    for (let i = 0; i < wordElements.length; i++) {
+      const wordElement = wordElements[i];
+      if (wordElement.innerText === inputValue) {
+        wordElement.parentNode.removeChild(wordElement);
+        break; // 가장 먼저 생성된 하나만 삭제 후 반복문 종료
+      }
+    }
+
+    event.target.value = ''; // 입력 필드 비우기
+  }
+};
+
 const init = () => {
   console.log('Initiated!');
   dropping = setInterval(startGame, 1000);
+
+  const inputField = document.getElementById('input-field');
+  inputField.addEventListener('keydown', handleInput);
 };
 
 window.onload = init;
