@@ -12,7 +12,7 @@ const keyframes = `
 @keyframes drop {
   100%{
     transform: translateY(${
-      document.getElementById('game-section').offsetHeight
+      document.getElementById('main-section').offsetHeight
     }px) 
   }
 }
