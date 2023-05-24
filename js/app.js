@@ -11,7 +11,9 @@ recognition.maxAlternatives = 10000;
 const keyframes = `
 @keyframes drop {
   100%{
-    transform: translateY(${document.getElementById('game').offsetHeight}px) 
+    transform: translateY(${
+      document.getElementById('game-section').offsetHeight
+    }px) 
   }
 }
 `;
@@ -31,7 +33,9 @@ class Word {
   }
 }
 
-const gameScreen = document.getElementById('game');
+const gameScreen = document.getElementById('game-section');
+const titleScreen = document.getElementById('title-section');
+const retryScreen = document.getElementById('retry-section');
 const timeouts = [];
 let dropping;
 let dropWordTimeout;
@@ -58,7 +62,7 @@ const addTimeout = (callback, delay) => {
   timeouts.push(timeoutId);
 };
 
-const startGame = () => {
+const handleDropWords = () => {
   const delay = Math.round(Math.random() * 5 * 1000);
   dropWordTimeout = addTimeout(drop, delay);
   dropDelay += delay;
@@ -91,8 +95,6 @@ const drop = () => {
     word.posX = document.documentElement.clientWidth - wordWidth;
   }
   dropWord.style.left = `${word.posX}px`;
-
-  //console.log(word.posX);
 };
 
 const handleInput = (event) => {
@@ -128,17 +130,32 @@ const handleAnimationEnd = () => {
     clearAllTimeouts();
     clearInterval(dropping);
 
-    alert('Game Over');
+    console.log('Game Over');
   }
 };
 
 const init = () => {
   console.log('Initiated!');
-  recognition.start();
-  dropping = setInterval(startGame, 1000);
+  window.addEventListener('keydown', handleGameStart);
+};
 
-  const inputField = document.getElementById('input-field');
-  inputField.addEventListener('keydown', handleInput);
+const handleGameStart = (event) => {
+  if (event.key === 'Enter') {
+    toggleScreen('title-section', 'game-section');
+    recognition.start();
+    dropping = setInterval(handleDropWords, 1000);
+
+    const inputField = document.getElementById('input-field');
+    inputField.addEventListener('keydown', handleInput);
+  }
+  window.removeEventListener('keydown', handleGameStart);
+};
+
+const toggleScreen = (fromScreen, toScreen) => {
+  const fs = document.getElementById(fromScreen);
+  const ts = document.getElementById(toScreen);
+  fs.style.display = 'none';
+  ts.style.display = 'flex';
 };
 
 window.onload = init;

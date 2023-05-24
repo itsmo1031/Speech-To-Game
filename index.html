@@ -4,17 +4,34 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/@kfonts/neodgm/index.css" />
     <link rel="stylesheet" href="css/app.css" />
     <title>Document</title>
   </head>
   <body>
-    <header></header>
-    <main>
-      <div id="game"></div>
-    </main>
-    <footer>
-      <input type="text" id="input-field" />
-    </footer>
+    <div id="header-section"></div>
+    <div id="main-section">
+      <div id="title-section">
+        <p class="title">모르겠고요 나중에 정합시다</p>
+        <p class="description">
+          Press <span class="nes-text is-warning">&lt;Enter&gt;</span> to Start
+        </p>
+      </div>
+      <div id="game-section" style="display: none"></div>
+      <div id="retry-section">
+        <p class="title">Game Over</p>
+        <button class="nes-btn">Retry?</button>
+      </div>
+    </div>
+    <div id="input-section">
+      <div class="nes-field is-inline">
+        <input type="text" id="input-field" class="nes-input is-dark" />
+      </div>
+    </div>
   </body>
   <script type="module" src="js/app.js"></script>
 </html>

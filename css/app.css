@@ -1,11 +1,15 @@
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P:regular);
+
 * {
-  margin: 0;
-  padding: 0;
+  font-family: 'Neo둥근모', 'neodgm', 'Press Start 2P';
+  color: #ffffff;
+  background-color: #212529;
 }
 
 html {
   width: 100%;
   height: 100%;
+  background-color: #212529;
 }
 
 body {
@@ -16,27 +20,33 @@ body {
   overflow-y: hidden;
   width: 100%;
   height: 100%;
+  padding: 1vh 1vw;
+  background-color: #212529 !important;
 }
 
-header {
+#main-section {
   width: 100%;
-  height: 10%;
-  background-color: black;
+  height: 90%;
 }
-main {
-  width: 100%;
-  height: 80%;
-}
+
 #game {
   width: 100%;
   height: 100%;
 }
-footer {
+
+#input-section {
   width: 100%;
   height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-footer input {
+
+#input-section div {
   width: 100%;
+}
+
+#input-section input {
   height: 50%;
   z-index: 10;
 }
@@ -44,5 +54,56 @@ footer input {
 .word {
   position: absolute;
   animation: drop 10s;
-  z-index: -1;
+  font-size: 1.3rem;
+}
+
+#main-section {
+  display: flex;
+}
+
+#title-section {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+#main-section,
+#retry-section,
+#title-section {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#retry-section {
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#game-section {
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.title {
+  text-align: center;
+  font-size: 5rem;
+}
+
+.description {
+  font-size: 2rem;
+  margin-top: 2rem;
+}
+
+.description span {
+  font-weight: bold;
+  animation: blink 1.5s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 20%;
+  }
 }
