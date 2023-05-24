@@ -1,5 +1,13 @@
 'use strict';
 
+window.SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.lang = 'ko-KR';
+recognition.maxAlternatives = 10000;
+
 const keyframes = `
 @keyframes drop {
   100%{
@@ -28,6 +36,17 @@ const timeouts = [];
 let dropping;
 let dropWordTimeout;
 let dropDelay;
+// 음성 인식 결과를 저장할 배열
+const speechWords = [];
+
+// result 이벤트 핸들러 설정
+recognition.onresult = (event) => {
+  const transcript = event.results[event.results.length - 1][0].transcript;
+  const words = transcript.split(' ').filter((i) => i.length != 0);
+
+  speechWords.push(...words);
+  console.log(speechWords);
+};
 
 const dummy = [
   'aliqua',
@@ -149,15 +168,11 @@ const startGame = () => {
 };
 
 const drop = () => {
-  if (!dummy.length) {
-    console.log('data empty');
-    clearTimeout(dropWordTimeout);
-    clearInterval(dropping);
+  if (!speechWords.length) {
+    console.log('Speech words empty');
     return;
   }
-  const idx = Math.floor(Math.random() * dummy.length);
-  //console.log(idx);
-  const word = new Word(dummy.splice(idx, 1));
+  const word = new Word(speechWords.splice(0, 1));
   const dropWord = document.createElement('div');
   dropWord.classList.add('word');
   dropWord.style.animationDelay = `${dropDelay}s`;
@@ -222,6 +237,7 @@ const handleAnimationEnd = () => {
 
 const init = () => {
   console.log('Initiated!');
+  recognition.start();
   dropping = setInterval(startGame, 1000);
 
   const inputField = document.getElementById('input-field');
