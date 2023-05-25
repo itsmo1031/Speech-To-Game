@@ -55,6 +55,7 @@ body {
 
 #main-section {
   display: flex;
+  padding: 0 3vw;
 }
 
 #title-section {
