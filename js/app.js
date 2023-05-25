@@ -32,7 +32,9 @@ class Word {
     this.value = args[0];
     this.posX =
       args[1] ||
-      Math.floor(Math.random() * document.documentElement.clientWidth);
+      Math.floor(
+        Math.random() * document.getElementById('game-section').offsetWidth
+      );
     this.posY = args[2] || 0;
   }
 }
@@ -143,6 +145,7 @@ const handleAnimationEnd = () => {
 
 const gameOver = () => {
   console.log('Game Over');
+  document.getElementById('rec').classList.toggle('display-none');
   // 현재 점수 최종 점수와 비교
   if (isBestScore()) {
     bestScore = score;
@@ -179,15 +182,23 @@ const clearScore = () => {
 
 const handleGameStart = (event) => {
   if (event.key === 'Enter') {
+    const inputDiv = document.getElementById('input-div');
     toggleScreen('title-section', 'game-section');
     toggleScreen('header-main-left', 'header-game-left');
+    inputDiv.classList.toggle('display-none');
+    inputDiv.classList.toggle('input-animation');
     recognition.start();
-    dropping = setInterval(handleDropWords, 1000);
     displayBestScore();
     clearScore();
     const inputField = document.getElementById('input-field');
+    document
+      .getElementById('input-div')
+      .addEventListener('animationend', () => {
+        inputField.focus();
+        document.getElementById('rec').classList.toggle('display-none');
+        dropping = setInterval(handleDropWords, 1000);
+      });
     inputField.addEventListener('keyup', handleInput);
-    inputField.focus();
     window.removeEventListener('keyup', handleGameStart);
   }
 };
