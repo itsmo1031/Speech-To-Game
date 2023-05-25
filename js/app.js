@@ -8,6 +8,10 @@ recognition.continuous = true;
 recognition.lang = 'ko-KR';
 recognition.maxAlternatives = 10000;
 
+const settings = {
+  SCORE_PER_LETTER: 50,
+};
+
 const keyframes = `
 @keyframes drop {
   100%{
@@ -37,6 +41,9 @@ const gameScreen = document.getElementById('game-section');
 const titleScreen = document.getElementById('title-section');
 const retryScreen = document.getElementById('retry-section');
 const timeouts = [];
+let bestScore = localStorage.getItem('bestScore');
+let score = 0;
+const scoreField = document.getElementById('score');
 let dropping;
 let dropWordTimeout;
 let dropDelay;
@@ -105,6 +112,8 @@ const handleInput = (event) => {
     for (let i = 0; i < wordElements.length; i++) {
       const wordElement = wordElements[i];
       if (wordElement.innerText === inputValue.replace(' ', '')) {
+        score += wordElement.innerText.length * settings.SCORE_PER_LETTER;
+        displayScore(score);
         wordElement.parentNode.removeChild(wordElement);
         break; // 가장 먼저 생성된 하나만 삭제 후 반복문 종료
       }
@@ -125,18 +134,47 @@ const handleAnimationEnd = () => {
   wordElements.forEach((element) => {
     element.parentNode.removeChild(element);
   });
-
   if (document.getElementsByClassName('word').length === 0) {
     clearAllTimeouts();
     clearInterval(dropping);
-
-    console.log('Game Over');
+    gameOver();
   }
+};
+
+const gameOver = () => {
+  console.log('Game Over');
+  // 현재 점수 최종 점수와 비교
+  if (isBestScore()) {
+    bestScore = score;
+    console.log('new record!');
+    localStorage.setItem('bestScore', score);
+  }
+};
+
+const isBestScore = () => {
+  return !bestScore || score > parseInt(bestScore);
 };
 
 const init = () => {
   console.log('Initiated!');
   window.addEventListener('keyup', handleGameStart);
+};
+
+const displayScore = (num) => {
+  scoreField.innerText = num.toString().padStart(6, '0');
+};
+
+const displayBestScore = () => {
+  if (bestScore) {
+    document.getElementById('best-score').innerText = bestScore
+      .toString()
+      .padStart(6, '0');
+  }
+};
+
+const clearScore = () => {
+  score = 0;
+  scoreField.innerText = '000000';
 };
 
 const handleGameStart = (event) => {
@@ -145,7 +183,8 @@ const handleGameStart = (event) => {
     toggleScreen('header-main-left', 'header-game-left');
     recognition.start();
     dropping = setInterval(handleDropWords, 1000);
-
+    displayBestScore();
+    clearScore();
     const inputField = document.getElementById('input-field');
     inputField.addEventListener('keyup', handleInput);
     inputField.focus();
