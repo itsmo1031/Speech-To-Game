@@ -1,11 +1,15 @@
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P:regular);
+
 * {
-  margin: 0;
-  padding: 0;
+  font-family: 'Neo둥근모', 'neodgm', 'Press Start 2P';
+  color: #ffffff;
+  background-color: #212529;
 }
 
 html {
   width: 100%;
   height: 100%;
+  background-color: #212529;
 }
 
 body {
@@ -16,27 +20,29 @@ body {
   overflow-y: hidden;
   width: 100%;
   height: 100%;
+  padding: 1vh 1vw;
+  background-color: #212529 !important;
 }
 
-header {
+#main-section {
+  width: 100%;
+  height: 90%;
+}
+
+#input-section {
   width: 100%;
   height: 10%;
-  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-main {
+
+#input-section div {
   width: 100%;
-  height: 80%;
+  padding: 0 2vw;
 }
-#game {
-  width: 100%;
-  height: 100%;
-}
-footer {
-  width: 100%;
-  height: 10%;
-}
-footer input {
-  width: 100%;
+
+#input-section input {
   height: 50%;
   z-index: 10;
 }
@@ -44,5 +50,125 @@ footer input {
 .word {
   position: absolute;
   animation: drop 10s;
-  z-index: -1;
+  font-size: 1.3rem;
+}
+
+#main-section {
+  display: flex;
+}
+
+#title-section {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+#main-section,
+#retry-section,
+#title-section {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#retry-section {
+  width: 100%;
+  height: 100%;
+}
+
+#game-section {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+#header-right {
+  width: 11%;
+  height: 100%;
+}
+
+#header-section {
+  display: flex;
+  width: 100%;
+  height: 5%;
+  padding: 0 3vw;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+#header-social {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+#header-social a {
+  margin-left: 1vw;
+}
+
+#header-game-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 100%;
+}
+
+#header-main-left {
+  display: flex;
+  align-items: center;
+}
+
+#header-main-left i {
+  margin-left: 0.5vw;
+}
+
+.header-main {
+  animation: blink-0 2s step-end infinite;
+}
+
+.title {
+  text-align: center;
+  font-size: 5rem;
+  text-shadow: -5px -5px 0 #212529, 0 -5px 0 #212529, 5px -5px 0 #212529,
+    5px 0 0 #212529, 5px 5px 0 #212529, 0 5px 0 #212529, -5px 5px 0 #212529,
+    -5px 0 0 #212529, 7px 7px 0 white;
+}
+
+.description {
+  font-size: 2rem;
+  margin-top: 2rem;
+}
+
+.description span {
+  font-weight: bold;
+  animation: blink-20 1.5s step-end infinite;
+}
+
+.display-none {
+  display: none !important;
+}
+
+#rec {
+  position: absolute;
+  color: rgba(220, 20, 60, 0.8);
+  font-size: 1.3rem;
+  right: 1rem;
+  bottom: 1rem;
+  animation: blink-20 2s step-end infinite;
+}
+
+@keyframes blink-20 {
+  50% {
+    opacity: 20%;
+  }
+}
+
+@keyframes blink-0 {
+  50% {
+    opacity: 0%;
+  }
 }

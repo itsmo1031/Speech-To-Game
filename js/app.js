@@ -11,7 +11,9 @@ recognition.maxAlternatives = 10000;
 const keyframes = `
 @keyframes drop {
   100%{
-    transform: translateY(${document.getElementById('game').offsetHeight}px) 
+    transform: translateY(${
+      document.getElementById('main-section').offsetHeight
+    }px) 
   }
 }
 `;
@@ -31,7 +33,9 @@ class Word {
   }
 }
 
-const gameScreen = document.getElementById('game');
+const gameScreen = document.getElementById('game-section');
+const titleScreen = document.getElementById('title-section');
+const retryScreen = document.getElementById('retry-section');
 const timeouts = [];
 let dropping;
 let dropWordTimeout;
@@ -58,7 +62,7 @@ const addTimeout = (callback, delay) => {
   timeouts.push(timeoutId);
 };
 
-const startGame = () => {
+const handleDropWords = () => {
   const delay = Math.round(Math.random() * 5 * 1000);
   dropWordTimeout = addTimeout(drop, delay);
   dropDelay += delay;
@@ -91,18 +95,16 @@ const drop = () => {
     word.posX = document.documentElement.clientWidth - wordWidth;
   }
   dropWord.style.left = `${word.posX}px`;
-
-  //console.log(word.posX);
 };
 
 const handleInput = (event) => {
   if (event.key === ' ' || event.key === 'Enter') {
-    const inputValue = event.target.value.replace(' ', '');
+    const inputValue = event.target.value;
 
     const wordElements = document.getElementsByClassName('word');
     for (let i = 0; i < wordElements.length; i++) {
       const wordElement = wordElements[i];
-      if (wordElement.innerText === inputValue) {
+      if (wordElement.innerText === inputValue.replace(' ', '')) {
         wordElement.parentNode.removeChild(wordElement);
         break; // 가장 먼저 생성된 하나만 삭제 후 반복문 종료
       }
@@ -128,17 +130,34 @@ const handleAnimationEnd = () => {
     clearAllTimeouts();
     clearInterval(dropping);
 
-    alert('Game Over');
+    console.log('Game Over');
   }
 };
 
 const init = () => {
   console.log('Initiated!');
-  recognition.start();
-  dropping = setInterval(startGame, 1000);
+  window.addEventListener('keyup', handleGameStart);
+};
 
-  const inputField = document.getElementById('input-field');
-  inputField.addEventListener('keydown', handleInput);
+const handleGameStart = (event) => {
+  if (event.key === 'Enter') {
+    toggleScreen('title-section', 'game-section');
+    toggleScreen('header-main-left', 'header-game-left');
+    recognition.start();
+    dropping = setInterval(handleDropWords, 1000);
+
+    const inputField = document.getElementById('input-field');
+    inputField.addEventListener('keyup', handleInput);
+    inputField.focus();
+    window.removeEventListener('keyup', handleGameStart);
+  }
+};
+
+const toggleScreen = (fromScreen, toScreen) => {
+  const fs = document.getElementById(fromScreen);
+  const ts = document.getElementById(toScreen);
+  fs.classList.toggle('display-none');
+  ts.classList.toggle('display-none');
 };
 
 window.onload = init;
