@@ -117,6 +117,15 @@ body {
   line-height: 100%;
 }
 
+#header-main-left {
+  display: flex;
+  align-items: center;
+}
+
+#header-main-left i {
+  margin-left: 0.5vw;
+}
+
 .header-main {
   animation: blink-0 2s step-end infinite;
 }
