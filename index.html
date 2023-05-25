@@ -13,16 +13,53 @@
     <title>Document</title>
   </head>
   <body>
-    <div id="header-section"></div>
+    <div id="header-section">
+      <div id="header-left">
+        <div id="header-main-left" class="header-main">Insert Coin</div>
+        <div id="header-game-left" class="display-none">
+          <div id="best-score-label">
+            BEST SCORE:<span id="best-score">000000</span>
+          </div>
+          <div id="score-label">SCORE:<span id="score">000000</span></div>
+        </div>
+      </div>
+      <div id="header-right">
+        <div id="header-social">
+          <a
+            href="https://github.com/itsmo1031"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="nes-icon github"> </i>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/itsmo1031/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="nes-icon linkedin"> </i>
+          </a>
+          <a
+            href="https://mailhide.io/e/GKTCyRoR"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="nes-icon gmail"></i>
+          </a>
+        </div>
+      </div>
+    </div>
     <div id="main-section">
       <div id="title-section">
-        <p class="title">모르겠고요 나중에 정합시다</p>
+        <p class="title">타이틀</p>
         <p class="description">
           Press <span class="nes-text is-warning">&lt;Enter&gt;</span> to Start
         </p>
       </div>
-      <div id="game-section"></div>
-      <div id="retry-section">
+      <div id="game-section" class="display-none">
+        <div id="rec">● REC</div>
+      </div>
+      <div id="retry-section" class="display-none">
         <p class="title">Game Over</p>
         <button class="nes-btn">Retry?</button>
       </div>

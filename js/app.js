@@ -99,12 +99,12 @@ const drop = () => {
 
 const handleInput = (event) => {
   if (event.key === ' ' || event.key === 'Enter') {
-    const inputValue = event.target.value.replace(' ', '');
+    const inputValue = event.target.value;
 
     const wordElements = document.getElementsByClassName('word');
     for (let i = 0; i < wordElements.length; i++) {
       const wordElement = wordElements[i];
-      if (wordElement.innerText === inputValue) {
+      if (wordElement.innerText === inputValue.replace(' ', '')) {
         wordElement.parentNode.removeChild(wordElement);
         break; // 가장 먼저 생성된 하나만 삭제 후 반복문 종료
       }
@@ -136,26 +136,28 @@ const handleAnimationEnd = () => {
 
 const init = () => {
   console.log('Initiated!');
-  window.addEventListener('keydown', handleGameStart);
+  window.addEventListener('keyup', handleGameStart);
 };
 
 const handleGameStart = (event) => {
   if (event.key === 'Enter') {
     toggleScreen('title-section', 'game-section');
+    toggleScreen('header-main-left', 'header-game-left');
     recognition.start();
     dropping = setInterval(handleDropWords, 1000);
 
     const inputField = document.getElementById('input-field');
-    inputField.addEventListener('keydown', handleInput);
+    inputField.addEventListener('keyup', handleInput);
+    inputField.focus();
+    window.removeEventListener('keyup', handleGameStart);
   }
-  window.removeEventListener('keydown', handleGameStart);
 };
 
 const toggleScreen = (fromScreen, toScreen) => {
   const fs = document.getElementById(fromScreen);
   const ts = document.getElementById(toScreen);
-  fs.style.display = 'none';
-  ts.style.display = 'flex';
+  fs.classList.toggle('display-none');
+  ts.classList.toggle('display-none');
 };
 
 window.onload = init;

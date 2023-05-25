@@ -39,6 +39,7 @@ body {
 
 #input-section div {
   width: 100%;
+  padding: 0 2vw;
 }
 
 #input-section input {
@@ -73,18 +74,59 @@ body {
 #retry-section {
   width: 100%;
   height: 100%;
-  display: none;
 }
 
 #game-section {
   width: 100%;
   height: 100%;
-  display: none;
+  position: relative;
+}
+
+#header-right {
+  width: 11%;
+  height: 100%;
+}
+
+#header-section {
+  display: flex;
+  width: 100%;
+  height: 5%;
+  padding: 0 3vw;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+#header-social {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+#header-social a {
+  margin-left: 1vw;
+}
+
+#header-game-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 100%;
+}
+
+.header-main {
+  animation: blink-0 2s step-end infinite;
 }
 
 .title {
   text-align: center;
   font-size: 5rem;
+  text-shadow: -5px -5px 0 #212529, 0 -5px 0 #212529, 5px -5px 0 #212529,
+    5px 0 0 #212529, 5px 5px 0 #212529, 0 5px 0 #212529, -5px 5px 0 #212529,
+    -5px 0 0 #212529, 7px 7px 0 white;
 }
 
 .description {
@@ -94,11 +136,30 @@ body {
 
 .description span {
   font-weight: bold;
-  animation: blink 1.5s step-end infinite;
+  animation: blink-20 1.5s step-end infinite;
 }
 
-@keyframes blink {
+.display-none {
+  display: none !important;
+}
+
+#rec {
+  position: absolute;
+  color: rgba(220, 20, 60, 0.8);
+  font-size: 1.3rem;
+  right: 1rem;
+  bottom: 1rem;
+  animation: blink-20 2s step-end infinite;
+}
+
+@keyframes blink-20 {
   50% {
     opacity: 20%;
+  }
+}
+
+@keyframes blink-0 {
+  50% {
+    opacity: 0%;
   }
 }
