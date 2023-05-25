@@ -1,5 +1,13 @@
 'use strict';
 
+window.SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.lang = 'ko-KR';
+recognition.maxAlternatives = 10000;
+
 const keyframes = `
 @keyframes drop {
   100%{
@@ -28,109 +36,17 @@ const timeouts = [];
 let dropping;
 let dropWordTimeout;
 let dropDelay;
+// 음성 인식 결과를 저장할 배열
+const speechWords = [];
 
-const dummy = [
-  'aliqua',
-  'ex',
-  'ad',
-  'eiusmod',
-  'anim',
-  'proident',
-  'voluptate',
-  'nisi',
-  'tempor',
-  'ut',
-  'incididunt',
-  'pariatur',
-  'do',
-  'in',
-  'sit',
-  'fugiat',
-  'minim',
-  'laboris',
-  'quis',
-  'ea',
-  'labore',
-  'deserunt',
-  'ex',
-  'quis',
-  'dolor',
-  'mollit',
-  'est',
-  'cillum',
-  'labore',
-  'irure',
-  'est',
-  'est',
-  'tempor',
-  'dolor',
-  'deserunt',
-  'tempor',
-  'esse',
-  'dolor',
-  'dolor',
-  'exercitation',
-  'incididunt',
-  'sunt',
-  'dolor',
-  'esse',
-  'ullamco',
-  'deserunt',
-  'commodo',
-  'sint',
-  'sint',
-  'elit',
-  'velit',
-  'est',
-  'est',
-  'velit',
-  'fugiat',
-  'pariatur',
-  'sit',
-  'in',
-  'esse',
-  'amet',
-  'non',
-  'mollit',
-  'consectetur',
-  'amet',
-  'dolor',
-  'eiusmod',
-  'exercitation',
-  'ea',
-  'mollit',
-  'exercitation',
-  'amet',
-  'deserunt',
-  'excepteur',
-  'nulla',
-  'dolore',
-  'sunt',
-  'culpa',
-  'cillum',
-  'velit',
-  'laborum',
-  'est',
-  'mollit',
-  'deserunt',
-  'qui',
-  'incididunt',
-  'tempor',
-  'ea',
-  'ipsum',
-  'amet',
-  'mollit',
-  'duis',
-  'ad',
-  'amet',
-  'occaecat',
-  'ut',
-  'occaecat',
-  'laboris',
-  'elit',
-  'laboris',
-  'elit',
-];
+// result 이벤트 핸들러 설정
+recognition.onresult = (event) => {
+  const transcript = event.results[event.results.length - 1][0].transcript;
+  const words = transcript.split(' ').filter((i) => i.length != 0);
+
+  speechWords.push(...words);
+  console.log(speechWords);
+};
 
 const addTimeout = (callback, delay) => {
   const timeoutId = setTimeout(() => {
@@ -149,15 +65,11 @@ const startGame = () => {
 };
 
 const drop = () => {
-  if (!dummy.length) {
-    console.log('data empty');
-    clearTimeout(dropWordTimeout);
-    clearInterval(dropping);
+  if (!speechWords.length) {
+    console.log('Speech words empty');
     return;
   }
-  const idx = Math.floor(Math.random() * dummy.length);
-  //console.log(idx);
-  const word = new Word(dummy.splice(idx, 1));
+  const word = new Word(speechWords.splice(0, 1));
   const dropWord = document.createElement('div');
   dropWord.classList.add('word');
   dropWord.style.animationDelay = `${dropDelay}s`;
@@ -185,7 +97,7 @@ const drop = () => {
 
 const handleInput = (event) => {
   if (event.key === ' ' || event.key === 'Enter') {
-    const inputValue = event.target.value;
+    const inputValue = event.target.value.replace(' ', '');
 
     const wordElements = document.getElementsByClassName('word');
     for (let i = 0; i < wordElements.length; i++) {
@@ -222,6 +134,7 @@ const handleAnimationEnd = () => {
 
 const init = () => {
   console.log('Initiated!');
+  recognition.start();
   dropping = setInterval(startGame, 1000);
 
   const inputField = document.getElementById('input-field');
