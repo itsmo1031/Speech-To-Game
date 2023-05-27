@@ -327,8 +327,12 @@ const handleClickVolume = (event) => {
   muted = !muted;
   localStorage.setItem('muted', muted);
   console.log('muted: ' + muted);
+  toggleAllAudios(muted);
+};
+
+const toggleAllAudios = (isMuted) => {
   audios.forEach((audio) => {
-    audio.muted = muted;
+    audio.muted = isMuted;
   });
 };
 
@@ -342,6 +346,8 @@ const init = () => {
   if (!muted) {
     console.log('music not muted. toggle volume icon');
     toggleVolumeIcon(volumeBtn);
+  } else {
+    toggleAllAudios(true);
   }
   volumeBtn.addEventListener('click', handleClickVolume);
   window.addEventListener('keyup', handleGameStart);
