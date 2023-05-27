@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Press+Start+2P:regular);
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P);
 
 * {
   font-family: 'Neo둥근모', 'neodgm', 'Press Start 2P';
@@ -91,7 +91,7 @@ body {
 }
 
 #header-right {
-  width: 11%;
+  width: 20%;
   height: 100%;
 }
 
@@ -112,11 +112,32 @@ body {
   height: 100%;
   width: 100%;
   justify-content: flex-end;
-  align-items: flex-start;
+  align-items: center;
+}
+
+#volume {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#header-social div:hover i[class|='fa'],
+#header-social a:hover i::before {
+  transform: translateY(-2px);
+}
+
+#header-social a i[class|='nes'] {
+  margin: 0;
+  transform-origin: center;
 }
 
 #header-social a {
-  margin-left: 1vw;
+  width: 32px;
+  height: 32px;
+  margin-left: 0.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #header-game-left {
