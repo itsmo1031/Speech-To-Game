@@ -46,6 +46,8 @@ const timeouts = [];
 let bestScore = localStorage.getItem('bestScore');
 let score = 0;
 const scoreField = document.getElementById('score');
+const bestScoreField = document.getElementById('best-score');
+const finalScore = document.getElementById('final-score');
 let dropping;
 let dropWordTimeout;
 let dropDelay;
@@ -79,7 +81,7 @@ const handleDropWords = () => {
 
 const drop = () => {
   if (!speechWords.length) {
-    console.log('Speech words empty');
+    console.log('Speech words empty!');
     return;
   }
   const word = new Word(speechWords.splice(0, 1));
@@ -144,14 +146,25 @@ const handleAnimationEnd = () => {
 };
 
 const gameOver = () => {
+  const inputDiv = document.getElementById('input-div');
   console.log('Game Over');
   document.getElementById('rec').classList.toggle('display-none');
+  stopRecognition();
+  toggleScreen('game-section', 'retry-section');
+  toggleScreen('header-game-left', 'header-retry-left');
+  window.addEventListener('keydown', handleRadio);
+  window.addEventListener('keyup', handleSelection);
+
+  finalScore.innerText = score.toString().padStart(6, '0');
   // 현재 점수 최종 점수와 비교
   if (isBestScore()) {
     bestScore = score;
     console.log('new record!');
     localStorage.setItem('bestScore', score);
+    finalScore.parentNode.classList.add('best');
   }
+  inputDiv.classList.toggle('display-none');
+  inputDiv.classList.toggle('input-animation');
 };
 
 const isBestScore = () => {
@@ -161,17 +174,26 @@ const isBestScore = () => {
 const init = () => {
   console.log('Initiated!');
   window.addEventListener('keyup', handleGameStart);
+  document.querySelectorAll('#selection label').forEach((e) => {
+    e.addEventListener('mouseenter', handleRadioHover);
+    e.addEventListener('click', handleRadioClick);
+    e.childNodes.forEach((n) => {
+      n.addEventListener('click', preventHandler);
+    });
+  });
 };
 
 const displayScore = (num) => {
-  scoreField.innerText = num.toString().padStart(6, '0');
+  const padNum = num.toString().padStart(6, '0');
+  scoreField.innerText = padNum;
+  if (num > bestScore) {
+    bestScoreField.innerText = padNum;
+  }
 };
 
 const displayBestScore = () => {
   if (bestScore) {
-    document.getElementById('best-score').innerText = bestScore
-      .toString()
-      .padStart(6, '0');
+    bestScoreField.innerText = bestScore.toString().padStart(6, '0');
   }
 };
 
@@ -182,25 +204,37 @@ const clearScore = () => {
 
 const handleGameStart = (event) => {
   if (event.key === 'Enter') {
-    const inputDiv = document.getElementById('input-div');
     toggleScreen('title-section', 'game-section');
     toggleScreen('header-main-left', 'header-game-left');
-    inputDiv.classList.toggle('display-none');
-    inputDiv.classList.toggle('input-animation');
-    recognition.start();
-    displayBestScore();
-    clearScore();
-    const inputField = document.getElementById('input-field');
-    document
-      .getElementById('input-div')
-      .addEventListener('animationend', () => {
-        inputField.focus();
-        document.getElementById('rec').classList.toggle('display-none');
-        dropping = setInterval(handleDropWords, 1000);
-      });
-    inputField.addEventListener('keyup', handleInput);
+    gameStart();
     window.removeEventListener('keyup', handleGameStart);
   }
+};
+
+const startRecognition = () => {
+  recognition.start();
+  recognition.addEventListener('end', recognition.start);
+};
+
+const stopRecognition = () => {
+  recognition.removeEventListener('end', recognition.start);
+  recognition.stop();
+};
+
+const gameStart = () => {
+  const inputDiv = document.getElementById('input-div');
+  displayBestScore();
+  clearScore();
+  startRecognition();
+  inputDiv.classList.toggle('display-none');
+  inputDiv.classList.toggle('input-animation');
+  const inputField = document.getElementById('input-field');
+  document.getElementById('input-div').addEventListener('animationend', () => {
+    inputField.focus();
+    document.getElementById('rec').classList.toggle('display-none');
+    dropping = setInterval(handleDropWords, 1000);
+  });
+  inputField.addEventListener('keyup', handleInput);
 };
 
 const toggleScreen = (fromScreen, toScreen) => {
@@ -208,6 +242,68 @@ const toggleScreen = (fromScreen, toScreen) => {
   const ts = document.getElementById(toScreen);
   fs.classList.toggle('display-none');
   ts.classList.toggle('display-none');
+};
+
+const handleRadio = (event) => {
+  const radios = Array.from(document.getElementsByClassName('retry-selection'));
+  const currentIndex = radios.findIndex((r) => r.checked);
+  let nextIndex;
+
+  if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+    nextIndex = currentIndex > 0 ? currentIndex - 1 : radios.length - 1;
+  } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+    nextIndex = currentIndex < radios.length - 1 ? currentIndex + 1 : 0;
+  }
+  if (nextIndex !== undefined) {
+    radios[currentIndex].checked = false;
+    radios[nextIndex].checked = true;
+  }
+};
+
+const handleSelection = (event) => {
+  console.log('call!');
+  if (
+    event.key === ' ' ||
+    event.key === 'Enter' ||
+    event instanceof MouseEvent
+  ) {
+    const radioResult = document.querySelector(
+      'input[name="selection-radio"]:checked'
+    ).value;
+    if (radioResult === 'retry') {
+      toggleScreen('retry-section', 'game-section');
+      toggleScreen('header-retry-left', 'header-game-left');
+      gameStart();
+    } else {
+      toggleScreen('retry-section', 'title-section');
+      toggleScreen('header-retry-left', 'header-main-left');
+      window.addEventListener('keyup', handleGameStart);
+    }
+
+    finalScore.parentNode.classList.remove('best');
+    window.removeEventListener('keydown', handleRadio);
+    window.removeEventListener('keyup', handleSelection);
+  }
+};
+
+const handleRadioHover = (event) => {
+  const target = event.target.firstElementChild;
+  if (!target.checked) {
+    const other = document.querySelector(
+      'input[name="selection-radio"]:checked'
+    );
+    other.checked = false;
+    target.checked = true;
+  }
+};
+
+const handleRadioClick = (event) => {
+  event.preventDefault();
+  handleSelection(event);
+};
+
+const preventHandler = (event) => {
+  if (event.defaultPrevented) return;
 };
 
 window.onload = init;
