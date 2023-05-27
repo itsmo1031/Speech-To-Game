@@ -25,11 +25,12 @@
           </div>
           <div id="score-label">1P SCORE:<span id="score">000000</span></div>
         </div>
+        <div id="header-retry-left" class="display-none">GAME OVER</div>
       </div>
       <div id="header-right">
         <div id="header-social">
           <a
-            href="https://github.com/itsmo1031"
+            href="https://github.com/itsmo1031/Speech-To-Game"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -53,7 +54,7 @@
       </div>
     </div>
     <div id="main-section">
-      <div id="title-section" class="display-none">
+      <div id="title-section">
         <p class="title">타이틀</p>
         <p class="description">
           Press <span class="nes-text is-warning">&lt;Enter&gt;</span> to Start
@@ -62,15 +63,19 @@
       <div id="game-section" class="display-none">
         <div id="rec" class="display-none">● REC</div>
       </div>
-      <div id="retry-section">
+      <div id="retry-section" class="display-none">
+        <p id="final-score-label">
+          FINAL SCORE: <span id="final-score">000000</span>
+        </p>
         <p id="gameover" class="title">GAME OVER</p>
         <div id="selection">
           <label>
             <input
               type="radio"
-              class="nes-radio is-dark"
+              class="nes-radio is-dark retry-selection"
               name="selection-radio"
               id="radio-retry"
+              value="retry"
               checked
             />
             <span>Retry?</span>
@@ -78,9 +83,10 @@
           <label>
             <input
               type="radio"
-              class="nes-radio is-dark"
+              class="nes-radio is-dark retry-selection"
               name="selection-radio"
               id="radio-back"
+              value="back"
             />
             <span>Back to Title</span>
           </label>

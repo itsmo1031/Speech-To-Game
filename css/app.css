@@ -31,7 +31,7 @@ body {
 
 #input-section {
   width: 100%;
-  height: 10%;
+  height: 7%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,6 +80,8 @@ body {
 
 #gameover {
   font-size: 7rem;
+  line-height: 1;
+  width: 60%;
 }
 
 #game-section {
@@ -193,4 +195,41 @@ body {
   50% {
     opacity: 0%;
   }
+}
+
+#selection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+}
+
+#selection label {
+  margin-bottom: 0;
+}
+
+.nes-radio:checked + span::before {
+  animation: blink 1s infinite steps(1);
+  margin: auto 0;
+  top: 2px;
+}
+
+.nes-radio + span {
+  font-size: 1.5rem;
+}
+
+#final-score-label {
+  font-size: 2rem;
+  position: relative;
+}
+
+#final-score-label.best::before {
+  position: absolute;
+  top: -1.5rem;
+  right: 0;
+  color: #f7d51d;
+  font-size: 1.5rem;
+  content: 'NEW RECORD!';
+  animation: blink-20 1.5s infinite step-end;
 }
