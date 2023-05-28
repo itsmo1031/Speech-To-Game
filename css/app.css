@@ -195,6 +195,7 @@ body {
   right: 1rem;
   bottom: 1rem;
   animation: blink-20 2s step-end infinite;
+  display: inherit;
 }
 
 .input-animation {
