@@ -48,9 +48,12 @@ let score = 0;
 const scoreField = document.getElementById('score');
 const bestScoreField = document.getElementById('best-score');
 const finalScore = document.getElementById('final-score');
+const inputDiv = document.getElementById('input-div');
+const inputField = document.getElementById('input-field');
 let dropping;
 let dropWordTimeout;
 let dropDelay;
+let isGameOver = false;
 // 음성 인식 결과를 저장할 배열
 const speechWords = [];
 let muted = localStorage.getItem('muted')
@@ -84,9 +87,8 @@ const addTimeout = (callback, delay) => {
 };
 
 const handleDropWords = () => {
-  const delay = Math.round(Math.random() * 5 * 1000);
+  const delay = Math.round(Math.random() * 7 * 1000);
   dropWordTimeout = addTimeout(drop, delay);
-  dropDelay += delay;
 };
 
 const drop = () => {
@@ -97,11 +99,8 @@ const drop = () => {
   const word = new Word(speechWords.splice(0, 1));
   const dropWord = document.createElement('div');
   dropWord.classList.add('word');
-  dropWord.style.animationDelay = `${dropDelay}s`;
-  if (word.posX + dropWord.offsetWidth > document.documentElement.clientWidth) {
-    console.log('over width');
-    word.posX = document.documentElement.clientWidth - dropWord.offsetWidth;
-  }
+  // console.log('current dropdelay: ' + dropDelay);
+  // dropWord.style.animationDelay = `${dropDelay}s`;
   dropWord.style.whiteSpace = 'nowrap';
   dropWord.style.animationTimingFunction = 'linear';
   dropWord.innerText = word.value;
@@ -111,9 +110,10 @@ const drop = () => {
   gameScreen.appendChild(dropWord);
 
   const wordWidth = dropWord.offsetWidth; // 텍스트의 실제 너비 가져오기
-  if (word.posX + wordWidth > document.documentElement.clientWidth) {
+  const sectionWidth = document.getElementById('game-section').offsetWidth;
+  if (word.posX + wordWidth > sectionWidth) {
     console.log('over width');
-    word.posX = document.documentElement.clientWidth - wordWidth;
+    word.posX = sectionWidth - wordWidth;
   }
   dropWord.style.left = `${word.posX}px`;
 };
@@ -140,6 +140,7 @@ const handleInput = (event) => {
 
 // 모든 타임아웃 클리어
 const clearAllTimeouts = () => {
+  console.log('clear timeouts');
   timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
   timeouts.length = 0;
 };
@@ -154,30 +155,6 @@ const handleAnimationEnd = () => {
     clearInterval(dropping);
     gameOver();
   }
-};
-
-const gameOver = () => {
-  const inputDiv = document.getElementById('input-div');
-  console.log('Game Over');
-  document.getElementById('rec').classList.toggle('display-none');
-  stopRecognition();
-  toggleScreen('game-section', 'retry-section');
-  toggleScreen('header-game-left', 'header-retry-left');
-  window.addEventListener('keydown', handleRadio);
-  window.addEventListener('keyup', handleSelection);
-  endMusic.play();
-  bgm.pause();
-  bgm.currentTime = 0;
-  finalScore.innerText = score.toString().padStart(6, '0');
-  // 현재 점수 최종 점수와 비교
-  if (isBestScore()) {
-    bestScore = score;
-    console.log('new record!');
-    localStorage.setItem('bestScore', score);
-    finalScore.parentNode.classList.add('best');
-  }
-  inputDiv.classList.toggle('display-none');
-  inputDiv.classList.toggle('input-animation');
 };
 
 const isBestScore = () => {
@@ -205,8 +182,7 @@ const clearScore = () => {
 
 const handleGameStart = (event) => {
   if (event.key === 'Enter') {
-    toggleScreen('title-section', 'game-section');
-    toggleScreen('header-main-left', 'header-game-left');
+    startMusic.play();
     gameStart();
     window.removeEventListener('keyup', handleGameStart);
   }
@@ -223,32 +199,51 @@ const stopRecognition = () => {
 };
 
 const gameStart = () => {
-  const inputDiv = document.getElementById('input-div');
-  inputDiv.classList.toggle('display-none');
-  inputDiv.classList.toggle('input-animation');
-  const inputField = document.getElementById('input-field');
-  document.getElementById('input-div').addEventListener('animationend', () => {
-    inputField.focus();
-    document.getElementById('rec').classList.toggle('display-none');
-    dropping = setInterval(handleDropWords, 1000);
-  });
+  isGameOver = false;
+  dropDelay = 0;
+  switchToGame();
   inputField.addEventListener('keyup', handleInput);
   displayBestScore();
   clearScore();
   startRecognition();
-  startMusic.play().then(() => {
-    setTimeout(() => {
-      bgm.loop = true;
-      bgm.play();
-    }, 2500);
-  });
+
+  setTimeout(() => {
+    bgm.loop = true;
+    bgm.play();
+  }, 2500);
 };
 
-const toggleScreen = (fromScreen, toScreen) => {
-  const fs = document.getElementById(fromScreen);
-  const ts = document.getElementById(toScreen);
-  fs.classList.toggle('display-none');
-  ts.classList.toggle('display-none');
+const gameOver = () => {
+  isGameOver = true;
+  inputField.removeEventListener('keyup', handleInput);
+  console.log('Game Over');
+  document.getElementById('rec').classList.toggle('display-none');
+  stopRecognition();
+  speechWords.length = 0;
+  switchToRetry();
+  window.addEventListener('keydown', handleRadio);
+  window.addEventListener('keyup', handleSelection);
+  endMusic.play();
+  bgm.pause();
+  bgm.currentTime = 0;
+  finalScore.innerText = score.toString().padStart(6, '0');
+  // 현재 점수 최종 점수와 비교
+  if (isBestScore()) {
+    bestScore = score;
+    console.log('new record!');
+    localStorage.setItem('bestScore', score);
+    finalScore.parentNode.classList.add('best');
+  }
+};
+
+// input field의 애니메이션이 끝난 후 동작 (init시 1회 선언)
+const inputFieldSetup = () => {
+  inputDiv.addEventListener('animationend', () => {
+    inputField.value = '';
+    inputField.focus();
+    document.getElementById('rec').classList.remove('display-none');
+    dropping = setInterval(handleDropWords, 1000);
+  });
 };
 
 const playSelectSound = () => {
@@ -296,14 +291,11 @@ const handleSelection = (event) => {
     const radioResult = document.querySelector(
       'input[name="selection-radio"]:checked'
     ).value;
+    startMusic.play();
     if (radioResult === 'retry') {
-      toggleScreen('retry-section', 'game-section');
-      toggleScreen('header-retry-left', 'header-game-left');
       gameStart();
     } else {
-      toggleScreen('retry-section', 'title-section');
-      toggleScreen('header-retry-left', 'header-main-left');
-      startMusic.play();
+      switchToMain();
       window.addEventListener('keyup', handleGameStart);
     }
 
@@ -341,8 +333,68 @@ const toggleVolumeIcon = () => {
   volumeBtn.classList.toggle('fa-volume-xmark');
 };
 
+const hideAllScreen = () => {
+  // 헤더, 메인, 입력창의 모든 요소들 선언
+  const headerSection = Array.from(
+    document.getElementById('header-left').children
+  );
+  const mainSection = Array.from(
+    document.getElementById('main-section').children
+  );
+  const inputSection = Array.from(
+    document.getElementById('input-section').children
+  );
+  // forEach문 실행을 위해 한 변수에 합침
+  const screens = headerSection.concat(mainSection.concat(inputSection));
+  const rec = document.getElementById('rec');
+  inputDiv.classList.remove('input-animation');
+  rec.classList.add('display-none');
+  screens.forEach((s) => {
+    s.classList.add('display-none');
+  });
+};
+
+const switchToMain = () => {
+  console.log('switching to main screen...');
+  hideAllScreen();
+  const mainHeader = document.getElementById('header-main-left');
+  const mainTitle = document.getElementById('title-section');
+  mainHeader.classList.remove('display-none');
+  mainTitle.classList.remove('display-none');
+};
+
+const switchToGame = () => {
+  console.log('switching to game screen...');
+  hideAllScreen();
+  const gameHeader = document.getElementById('header-game-left');
+  const gameMain = document.getElementById('game-section');
+  const gameInput = document.getElementById('input-div');
+
+  gameHeader.classList.remove('display-none');
+  gameMain.classList.remove('display-none');
+  gameInput.classList.remove('display-none');
+  inputDiv.classList.add('input-animation');
+};
+
+const switchToRetry = () => {
+  console.log('switching to retry screen...');
+  hideAllScreen();
+  const retryHeader = document.getElementById('header-retry-left');
+  const retryMain = document.getElementById('retry-section');
+
+  retryHeader.classList.remove('display-none');
+  retryMain.classList.remove('display-none');
+};
+
+const switchScreen = {
+  main: switchToMain,
+  game: switchToGame,
+  retry: switchToRetry,
+};
+
 const init = () => {
   console.log('Initiated!');
+  inputFieldSetup();
   if (!muted) {
     console.log('music not muted. toggle volume icon');
     toggleVolumeIcon(volumeBtn);
