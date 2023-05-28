@@ -10,6 +10,7 @@ recognition.maxAlternatives = 10000;
 
 const settings = {
   SCORE_PER_LETTER: 50,
+  WORD_CREATE_DELAY: 3,
 };
 
 const keyframes = `
@@ -27,35 +28,18 @@ style.innerHTML = keyframes;
 const head = document.head || document.getElementsByTagName('head')[0];
 head.appendChild(style);
 
-class Word {
-  constructor(args) {
-    this.value = args[0];
-    this.posX =
-      args[1] ||
-      Math.floor(
-        Math.random() * document.getElementById('game-section').offsetWidth
-      );
-    this.posY = args[2] || 0;
-  }
-}
-
 const gameScreen = document.getElementById('game-section');
-const titleScreen = document.getElementById('title-section');
-const retryScreen = document.getElementById('retry-section');
-const timeouts = [];
-let bestScore = localStorage.getItem('bestScore');
+const timeouts = []; // timeout이 설정된 단어들을 저장할 배열(게임 종료시 전부 삭제하도록)
+let bestScore = localStorage.getItem('bestScore')
+  ? parseInt(localStorage.getItem('bestScore'))
+  : 0;
 let score = 0;
 const scoreField = document.getElementById('score');
 const bestScoreField = document.getElementById('best-score');
 const finalScore = document.getElementById('final-score');
 const inputDiv = document.getElementById('input-div');
 const inputField = document.getElementById('input-field');
-let dropping;
-let dropWordTimeout;
-let dropDelay;
 let isGameOver = false;
-// 음성 인식 결과를 저장할 배열
-const speechWords = [];
 let muted = localStorage.getItem('muted')
   ? JSON.parse(localStorage.getItem('muted'))
   : true;
@@ -67,18 +51,31 @@ const selectSound = new Audio('static/select.mp3');
 const inputSound = new Audio('static/input.mp3');
 const audios = [bgm, startMusic, endMusic, selectSound, inputSound];
 
+class Word {
+  constructor(args) {
+    this.value = args.name;
+    this.posX = args.posX || Math.floor(Math.random() * gameScreen.offsetWidth);
+    this.posY = args.posY || 0;
+  }
+}
+
 // result 이벤트 핸들러 설정
 recognition.onresult = (event) => {
   const transcript = event.results[event.results.length - 1][0].transcript;
   const words = transcript.split(' ').filter((i) => i.length != 0);
 
-  speechWords.push(...words);
-  console.log(speechWords);
+  let delay = 0;
+
+  words.forEach((word) => {
+    delay += Math.round(Math.random() * settings.WORD_CREATE_DELAY * 1000);
+    console.log(`Next drop word: ${word}, delay: ${delay}`);
+    addTimeout(drop, word, delay);
+  });
 };
 
-const addTimeout = (callback, delay) => {
+const addTimeout = (callback, word, delay) => {
   const timeoutId = setTimeout(() => {
-    callback();
+    callback(word);
     // 타임아웃이 실행된 후 배열에서 제거
     timeouts.splice(timeouts.indexOf(timeoutId), 1);
   }, delay);
@@ -86,21 +83,11 @@ const addTimeout = (callback, delay) => {
   timeouts.push(timeoutId);
 };
 
-const handleDropWords = () => {
-  const delay = Math.round(Math.random() * 7 * 1000);
-  dropWordTimeout = addTimeout(drop, delay);
-};
-
-const drop = () => {
-  if (!speechWords.length) {
-    console.log('Speech words empty!');
-    return;
-  }
-  const word = new Word(speechWords.splice(0, 1));
+const drop = (elem) => {
+  const word = new Word({ name: elem });
+  console.log(word);
   const dropWord = document.createElement('div');
   dropWord.classList.add('word');
-  // console.log('current dropdelay: ' + dropDelay);
-  // dropWord.style.animationDelay = `${dropDelay}s`;
   dropWord.style.whiteSpace = 'nowrap';
   dropWord.style.animationTimingFunction = 'linear';
   dropWord.innerText = word.value;
@@ -110,7 +97,7 @@ const drop = () => {
   gameScreen.appendChild(dropWord);
 
   const wordWidth = dropWord.offsetWidth; // 텍스트의 실제 너비 가져오기
-  const sectionWidth = document.getElementById('game-section').offsetWidth;
+  const sectionWidth = gameScreen.offsetWidth;
   if (word.posX + wordWidth > sectionWidth) {
     console.log('over width');
     word.posX = sectionWidth - wordWidth;
@@ -150,15 +137,15 @@ const handleAnimationEnd = () => {
   wordElements.forEach((element) => {
     element.parentNode.removeChild(element);
   });
-  if (document.getElementsByClassName('word').length === 0) {
+  if (document.getElementsByClassName('word').length === 0 && !isGameOver) {
+    isGameOver = true;
     clearAllTimeouts();
-    clearInterval(dropping);
     gameOver();
   }
 };
 
 const isBestScore = () => {
-  return !bestScore || score > parseInt(bestScore);
+  return score > bestScore;
 };
 
 const displayScore = (num) => {
@@ -170,9 +157,7 @@ const displayScore = (num) => {
 };
 
 const displayBestScore = () => {
-  if (bestScore) {
-    bestScoreField.innerText = bestScore.toString().padStart(6, '0');
-  }
+  bestScoreField.innerText = bestScore.toString().padStart(6, '0');
 };
 
 const clearScore = () => {
@@ -200,7 +185,6 @@ const stopRecognition = () => {
 
 const gameStart = () => {
   isGameOver = false;
-  dropDelay = 0;
   switchToGame();
   inputField.addEventListener('keyup', handleInput);
   displayBestScore();
@@ -217,7 +201,7 @@ const gameOver = () => {
   isGameOver = true;
   inputField.removeEventListener('keyup', handleInput);
   console.log('Game Over');
-  document.getElementById('rec').classList.toggle('display-none');
+  document.getElementById('rec').classList.add('display-none');
   stopRecognition();
   speechWords.length = 0;
   switchToRetry();
@@ -237,12 +221,11 @@ const gameOver = () => {
 };
 
 // input field의 애니메이션이 끝난 후 동작 (init시 1회 선언)
-const inputFieldSetup = () => {
+const setupInputField = () => {
   inputDiv.addEventListener('animationend', () => {
     inputField.value = '';
     inputField.focus();
     document.getElementById('rec').classList.remove('display-none');
-    dropping = setInterval(handleDropWords, 1000);
   });
 };
 
@@ -314,15 +297,15 @@ const preventHandler = (event) => {
   if (event.defaultPrevented) return;
 };
 
-const handleClickVolume = (event) => {
+const handleClickVolume = () => {
   toggleVolumeIcon();
   muted = !muted;
   localStorage.setItem('muted', muted);
   console.log('muted: ' + muted);
-  toggleAllAudios(muted);
+  muteAudio(muted);
 };
 
-const toggleAllAudios = (isMuted) => {
+const muteAudio = (isMuted) => {
   audios.forEach((audio) => {
     audio.muted = isMuted;
   });
@@ -358,21 +341,20 @@ const switchToMain = () => {
   console.log('switching to main screen...');
   hideAllScreen();
   const mainHeader = document.getElementById('header-main-left');
-  const mainTitle = document.getElementById('title-section');
+  const titleScreen = document.getElementById('title-section');
+
   mainHeader.classList.remove('display-none');
-  mainTitle.classList.remove('display-none');
+  titleScreen.classList.remove('display-none');
 };
 
 const switchToGame = () => {
   console.log('switching to game screen...');
   hideAllScreen();
   const gameHeader = document.getElementById('header-game-left');
-  const gameMain = document.getElementById('game-section');
-  const gameInput = document.getElementById('input-div');
 
   gameHeader.classList.remove('display-none');
-  gameMain.classList.remove('display-none');
-  gameInput.classList.remove('display-none');
+  gameScreen.classList.remove('display-none');
+  inputDiv.classList.remove('display-none');
   inputDiv.classList.add('input-animation');
 };
 
@@ -380,29 +362,13 @@ const switchToRetry = () => {
   console.log('switching to retry screen...');
   hideAllScreen();
   const retryHeader = document.getElementById('header-retry-left');
-  const retryMain = document.getElementById('retry-section');
+  const retryScreen = document.getElementById('retry-section');
 
   retryHeader.classList.remove('display-none');
-  retryMain.classList.remove('display-none');
+  retryScreen.classList.remove('display-none');
 };
 
-const switchScreen = {
-  main: switchToMain,
-  game: switchToGame,
-  retry: switchToRetry,
-};
-
-const init = () => {
-  console.log('Initiated!');
-  inputFieldSetup();
-  if (!muted) {
-    console.log('music not muted. toggle volume icon');
-    toggleVolumeIcon(volumeBtn);
-  } else {
-    toggleAllAudios(true);
-  }
-  volumeBtn.addEventListener('click', handleClickVolume);
-  window.addEventListener('keyup', handleGameStart);
+const setupRadioEffect = () => {
   document.querySelectorAll('#selection label').forEach((e) => {
     e.addEventListener('mouseenter', handleRadioHover);
     e.addEventListener('click', handleRadioClick);
@@ -410,6 +376,20 @@ const init = () => {
       n.addEventListener('click', preventHandler);
     });
   });
+};
+
+const init = () => {
+  console.log('Initiated!');
+  if (!muted) {
+    console.log('music not muted. toggle volume icon');
+    toggleVolumeIcon();
+  } else {
+    muteAudio(true);
+  }
+  volumeBtn.addEventListener('click', handleClickVolume);
+  window.addEventListener('keyup', handleGameStart);
+  setupInputField();
+  setupRadioEffect();
 };
 
 window.onload = init;
