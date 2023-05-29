@@ -203,7 +203,6 @@ const gameOver = () => {
   console.log('Game Over');
   document.getElementById('rec').classList.add('display-none');
   stopRecognition();
-  speechWords.length = 0;
   switchToRetry();
   window.addEventListener('keydown', handleRadio);
   window.addEventListener('keyup', handleSelection);
