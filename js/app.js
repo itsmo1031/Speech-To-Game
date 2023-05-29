@@ -13,21 +13,7 @@ const settings = {
   WORD_CREATE_DELAY: 3,
 };
 
-const keyframes = `
-@keyframes drop {
-  100%{
-    transform: translateY(${
-      document.getElementById('main-section').offsetHeight
-    }px) 
-  }
-}
-`;
-
-const style = document.createElement('style');
-style.innerHTML = keyframes;
-const head = document.head || document.getElementsByTagName('head')[0];
-head.appendChild(style);
-
+const style = document.getElementById('keyframe');
 const gameScreen = document.getElementById('game-section');
 const timeouts = []; // timeout이 설정된 단어들을 저장할 배열(게임 종료시 전부 삭제하도록)
 let bestScore = localStorage.getItem('bestScore')
@@ -377,6 +363,20 @@ const setupRadioEffect = () => {
   });
 };
 
+const adjustDropHeight = () => {
+  console.log('window resized! adjust drop height...');
+  const keyframes = `
+  @keyframes drop {
+    100%{
+      transform: translateY(${
+        document.getElementById('main-section').offsetHeight
+      }px) 
+    }
+  }
+  `;
+  style.innerHTML = keyframes;
+};
+
 const init = () => {
   console.log('Initiated!');
   if (!muted) {
@@ -385,8 +385,10 @@ const init = () => {
   } else {
     muteAudio(true);
   }
-  volumeBtn.addEventListener('click', handleClickVolume);
+  adjustDropHeight();
+  window.addEventListener('resize', adjustDropHeight);
   window.addEventListener('keyup', handleGameStart);
+  volumeBtn.addEventListener('click', handleClickVolume);
   setupInputField();
   setupRadioEffect();
 };
