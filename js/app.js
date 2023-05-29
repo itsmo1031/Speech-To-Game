@@ -53,9 +53,12 @@ recognition.onresult = (event) => {
   let delay = 0;
 
   words.forEach((word) => {
-    delay += Math.round(Math.random() * settings.WORD_CREATE_DELAY * 1000);
     console.log(`Next drop word: ${word}, delay: ${delay}`);
+    if (isGameOver) {
+      return console.log('Game Already Over! skip...');
+    }
     addTimeout(drop, word, delay);
+    delay += Math.round(Math.random() * settings.WORD_CREATE_DELAY * 1000);
   });
 };
 
@@ -113,19 +116,18 @@ const handleInput = (event) => {
 
 // 모든 타임아웃 클리어
 const clearAllTimeouts = () => {
-  console.log('clear timeouts');
   timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
   timeouts.length = 0;
 };
 
 const handleAnimationEnd = () => {
   const wordElements = Array.from(document.getElementsByClassName('word'));
+  clearAllTimeouts();
   wordElements.forEach((element) => {
     element.parentNode.removeChild(element);
   });
   if (document.getElementsByClassName('word').length === 0 && !isGameOver) {
     isGameOver = true;
-    clearAllTimeouts();
     gameOver();
   }
 };
@@ -250,7 +252,6 @@ const handleRadioHover = (event) => {
 };
 
 const handleSelection = (event) => {
-  console.log('call!');
   if (
     event.key === ' ' ||
     event.key === 'Enter' ||
@@ -378,7 +379,6 @@ const adjustDropHeight = () => {
 };
 
 const init = () => {
-  console.log('Initiated!');
   if (!muted) {
     console.log('music not muted. toggle volume icon');
     toggleVolumeIcon();
