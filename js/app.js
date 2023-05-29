@@ -10,7 +10,7 @@ recognition.maxAlternatives = 10000;
 
 const settings = {
   SCORE_PER_LETTER: 50,
-  WORD_CREATE_DELAY: 3,
+  WORD_CREATE_DELAY: 2.5,
 };
 
 const style = document.getElementById('keyframe');
@@ -50,7 +50,7 @@ recognition.onresult = (event) => {
   const transcript = event.results[event.results.length - 1][0].transcript;
   const words = transcript.split(' ').filter((i) => i.length != 0);
 
-  let delay = 0;
+  let delay = 500;
 
   words.forEach((word) => {
     console.log(`Next drop word: ${word}, delay: ${delay}`);
