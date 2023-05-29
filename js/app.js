@@ -40,7 +40,7 @@ const audios = [bgm, startMusic, endMusic, selectSound, inputSound];
 class Word {
   constructor(args) {
     this.value = args.name;
-    this.posX = args.posX || Math.floor(Math.random() * gameScreen.offsetWidth);
+    this.posX = args.posX || Math.floor(Math.random() * 100);
     this.posY = args.posY || 0;
   }
 }
@@ -85,13 +85,19 @@ const drop = (elem) => {
 
   gameScreen.appendChild(dropWord);
 
-  const wordWidth = dropWord.offsetWidth; // 텍스트의 실제 너비 가져오기
-  const sectionWidth = gameScreen.offsetWidth;
-  if (word.posX + wordWidth > sectionWidth) {
-    console.log('over width');
-    word.posX = sectionWidth - wordWidth;
+  const wordWidthPercent = Math.ceil(getElementPercent(dropWord.offsetWidth)); // 텍스트의 실제 너비 가져오기
+  // 현재 게임 사이즈 + 왼쪽 패딩 5%
+  const sectionWidthPercent =
+    Math.ceil(getElementPercent(gameScreen.offsetWidth)) + 5;
+  if (sectionWidthPercent + wordWidthPercent > 90) {
+    console.log('over width! adjust posX value');
+    word.posX -= wordWidthPercent;
   }
-  dropWord.style.left = `${word.posX}px`;
+  dropWord.style.left = `${word.posX}%`;
+};
+
+const getElementPercent = (size) => {
+  return (size / window.innerWidth) * 100;
 };
 
 const handleInput = (event) => {
