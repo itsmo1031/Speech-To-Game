@@ -58,7 +58,9 @@ recognition.onresult = (event) => {
       return console.log('Game Already Over! skip...');
     }
     addTimeout(drop, word, delay);
-    delay += Math.round(Math.random() * settings.WORD_CREATE_DELAY * 1000);
+    delay += Math.round(
+      Math.random() * settings.WORD_CREATE_DELAY * 1000 + 500
+    );
   });
 };
 
