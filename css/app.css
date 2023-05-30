@@ -40,11 +40,11 @@ body {
 #input-section div {
   width: 100%;
   padding: 0 2vw;
+  z-index: 10;
 }
 
 #input-section input {
   height: 50%;
-  z-index: 10;
 }
 
 .word {
