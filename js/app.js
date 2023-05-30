@@ -91,7 +91,7 @@ const drop = (elem) => {
   // 현재 게임 사이즈 + 왼쪽 패딩 5%
   const sectionWidthPercent =
     Math.ceil(getElementPercent(gameScreen.offsetWidth)) + 5;
-  if (sectionWidthPercent + wordWidthPercent > 90) {
+  if (sectionWidthPercent + wordWidthPercent > 95) {
     console.log('over width! adjust posX value');
     word.posX -= wordWidthPercent;
   }
@@ -378,7 +378,7 @@ const adjustDropHeight = () => {
   @keyframes drop {
     100%{
       transform: translateY(${
-        document.getElementById('main-section').offsetHeight
+        document.getElementById('main-section').offsetHeight - 24
       }px) 
     }
   }
