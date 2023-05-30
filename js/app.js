@@ -378,7 +378,7 @@ const adjustDropHeight = () => {
   @keyframes drop {
     100%{
       transform: translateY(${
-        document.getElementById('main-section').offsetHeight - 24
+        document.getElementById('main-section').offsetHeight
       }px) 
     }
   }
